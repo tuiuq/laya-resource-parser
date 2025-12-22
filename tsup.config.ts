@@ -12,8 +12,7 @@ export default defineConfig({
   bundle: true,
   external: [
     "commander",
-    ...builtinModules,
-    ...builtinModules.map(t => `node:${t}`)
+    ...builtinModules.flatMap(m => [m, `node:${m}`])
   ],
   async esbuildOptions(options) {
     options.alias = await aliasesPlugin()
