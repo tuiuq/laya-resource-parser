@@ -12,7 +12,7 @@ export const remoteOption = new Option(
   try {
     const url = new URL(value);
     if (url.protocol !== "http:" && url.protocol !== "https:") {
-      throw new Error();
+      throw new Error("remote URL must be a valid HTTP or HTTPS URL");
     }
 
     return value;
