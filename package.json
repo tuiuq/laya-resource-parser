@@ -1,0 +1,10 @@
+{
+  "name": "@tuiuq/laya-resource-parser",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {},
+  "keywords": [],
+  "author": "tuiu <13719283454@163.com>",
+  "license": "MIT",
+  "packageManager": "pnpm@10.26.1"
+}
