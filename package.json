@@ -7,6 +7,9 @@
     "watch": "tsup --watch --sourcemap",
     "build": "tsup --minify"
   },
+  "bin": {
+    "lr": "./dist/index.js"
+  },
   "keywords": [],
   "author": "tuiu <13719283454@163.com>",
   "license": "MIT",
