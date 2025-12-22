@@ -1,5 +1,6 @@
 import { builtinModules } from "node:module"
 import { defineConfig } from "tsup"
+import { aliasesPlugin } from "./scripts/aliasesPlugin.ts"
 
 export default defineConfig({
   entry: ["src/index.ts"],
@@ -13,5 +14,8 @@ export default defineConfig({
     "commander",
     ...builtinModules,
     ...builtinModules.map(t => `node:${t}`)
-  ]
+  ],
+  async esbuildOptions(options) {
+    options.alias = await aliasesPlugin()
+  }
 })
