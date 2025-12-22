@@ -1,5 +1,7 @@
 import { Command } from "commander"
 import { version } from "../package.json"
+import { baseOption, remoteOption } from "./options";
+import { resolveParseOptions } from "./resolve";
 
 async function main() {
   const program = new Command();
@@ -10,8 +12,11 @@ async function main() {
     .version(version, "-V, --version")
 
   program
-    .action(() => {
-      console.log("Hello")
+    .addOption(baseOption)
+    .addOption(remoteOption)
+    .action((rawOptions) => {
+      const options = resolveParseOptions(rawOptions);
+      console.log(options);
     })
 
   await program.parseAsync(process.argv);
