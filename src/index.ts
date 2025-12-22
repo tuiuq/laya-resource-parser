@@ -1,6 +1,5 @@
-import { baseOption, remoteOption } from "@/options";
-import { resolveParseOptions } from "@/resolve";
 import { Command } from "commander";
+import { join } from "node:path";
 import { version } from "../package.json";
 
 async function main() {
@@ -12,11 +11,33 @@ async function main() {
     .version(version, "-V, --version")
 
   program
-    .addOption(baseOption)
-    .addOption(remoteOption)
+    .option(
+      "-b, --base <path>",
+      "Base path for resource parsing",
+      join(process.cwd(), "src")
+    )
+    .requiredOption(
+      "-r, --remote <url>",
+      "Remote URL for resource parsing",
+      (value: string) => {
+        if (!value.trim()) {
+          throw new Error("remote URL cannot be empty");
+        }
+
+        try {
+          const url = new URL(value);
+          if (url.protocol !== "http:" && url.protocol !== "https:") {
+            throw new Error("remote URL must be a valid HTTP or HTTPS URL");
+          }
+
+          return value;
+        } catch {
+          throw new Error("remote URL must be a valid HTTP or HTTPS URL");
+        }
+      }
+    )
     .action((rawOptions) => {
-      const options = resolveParseOptions(rawOptions);
-      console.log(options);
+      console.log(rawOptions)
     })
 
   await program.parseAsync(process.argv);
