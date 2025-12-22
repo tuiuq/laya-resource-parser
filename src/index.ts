@@ -7,7 +7,7 @@ async function main() {
   program
     .name("laya-resource-parser")
     .alias("lr")
-    .version(version)
+    .version(version, "-V, --version")
 
   program
     .action(() => {
