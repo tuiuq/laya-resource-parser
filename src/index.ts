@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { join } from "node:path";
 import { version } from "../package.json";
+import type { Options } from "./types";
 
 async function main() {
   const program = new Command();
@@ -36,8 +37,8 @@ async function main() {
         }
       }
     )
-    .action((rawOptions) => {
-      console.log(rawOptions)
+    .action((options: Options) => {
+      console.log(options)
     })
 
   await program.parseAsync(process.argv);
