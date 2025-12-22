@@ -15,6 +15,9 @@ importers:
       '@types/node':
         specifier: ^25.0.3
         version: 25.0.3
+      strip-json-comments:
+        specifier: ^5.0.3
+        version: 5.0.3
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(typescript@5.9.3)
@@ -460,6 +463,10 @@ packages:
     resolution: {integrity: sha512-i5uvt8C3ikiWeNZSVZNWcfZPItFQOsYTUAOkcUPGd8DqDy1uOUikjt5dG+uRlwyvR108Fb9DOd4GvXfT0N2/uQ==}
     engines: {node: '>= 12'}
 
+  strip-json-comments@5.0.3:
+    resolution: {integrity: sha512-1tB5mhVo7U+ETBKNf92xT4hrQa3pm0MZ0PQvuDnWgAAGHDsfp4lPSpiS6psrSiet87wyGPh9ft6wmhOMQ0hDiw==}
+    engines: {node: '>=14.16'}
+
   sucrase@3.35.1:
     resolution: {integrity: sha512-DhuTmvZWux4H1UOnWMB3sk0sbaCVOoQZjv8u1rDoTV0HTdGem9hkAZtl4JZy8P2z4Bg0nT+YMeOFyVr4zcG5Tw==}
     engines: {node: '>=16 || 14 >=14.17'}
@@ -831,6 +838,8 @@ snapshots:
       fsevents: 2.3.3
 
   source-map@0.7.6: {}
+
+  strip-json-comments@5.0.3: {}
 
   sucrase@3.35.1:
     dependencies:
