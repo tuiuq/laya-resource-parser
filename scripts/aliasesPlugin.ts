@@ -17,7 +17,7 @@ export async function aliasesPlugin(
   tsconfigPath: string = join(process.cwd(), "tsconfig.json")
 ): Promise<Record<string, string>> {
   const tsconfig = await loadTsconfig(tsconfigPath);
-  const paths = tsconfig.compilerOptions.paths;
+  const paths = tsconfig.compilerOptions?.paths ?? {};
   const aliases: Record<string, string> = Object.fromEntries(
     Object.entries<string[]>(paths).map(([k, v]): [string, string] => [
       removeWildcard(k),
