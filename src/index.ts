@@ -1,7 +1,7 @@
-import { Command } from "commander"
-import { version } from "../package.json"
 import { baseOption, remoteOption } from "@/options";
 import { resolveParseOptions } from "@/resolve";
+import { Command } from "commander";
+import { version } from "../package.json";
 
 async function main() {
   const program = new Command();
