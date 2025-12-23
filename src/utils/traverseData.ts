@@ -1,5 +1,13 @@
 import type { TraversePath } from "./types";
 
+/**
+ * Traverse data recursively and call callback function for each string value.
+ * @param {unknown} data - Data to traverse.
+ * @param {(path: TraversePath, key: string, value: string) => Promise<void>} callback - Callback function to call for each string value.
+ * @param {{filter: (path: TraversePath, key: string, value: string) => Promise<boolean>}} options - Options for filtering and traversing.
+ * @param {TraversePath} path - Current path in the data structure.
+ * @returns Promise<void>
+ */
 export async function traverseData(
   data: unknown,
   callback: (
