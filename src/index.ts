@@ -2,6 +2,7 @@ import { Command } from "commander";
 import { join } from "node:path";
 import { version } from "../package.json";
 import type { Options } from "./types";
+import { ResourceManager } from "./laya/ResourceManager";
 
 async function main() {
   const program = new Command();
@@ -37,8 +38,9 @@ async function main() {
         }
       }
     )
-    .action((options: Options) => {
-      console.log(options)
+    .action(async (options: Options) => {
+      const resource = new ResourceManager(options.base, options.remote)
+      await resource.parse()
     })
 
   await program.parseAsync(process.argv);
