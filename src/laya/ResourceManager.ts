@@ -1,9 +1,9 @@
 import {
-  CONCURRENCY,
-  FILE_PATH_PATTERN,
-  IGNORED_HIERARCHY_SUFFIXES,
-  PARSABLE_HIERARCHY_EXTENSIONS,
-  TOP_LEVEL_HIERARCHY_EXTENSIONS
+    CONCURRENCY,
+    FILE_PATH_PATTERN,
+    IGNORED_HIERARCHY_SUFFIXES,
+    PARSABLE_HIERARCHY_EXTENSIONS,
+    TOP_LEVEL_HIERARCHY_EXTENSIONS
 } from "@/constants";
 import { looksLikeAssetPath } from "@/utils/looksLikeAssetPath";
 import { readArrayBuffer } from "@/utils/readArrayBuffer";
@@ -14,7 +14,6 @@ import { walkFile } from "@/utils/walkFile";
 import { error, log } from "node:console";
 import { stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { isUint16Array } from "node:util/types";
 import pLimit from "p-limit";
 
 export class ResourceManager {
@@ -31,8 +30,8 @@ export class ResourceManager {
   }
 
   /**
-   * 解析所有资源文件
-   */
+  * 解析所有资源文件
+  */
   public async parse(): Promise<void> {
     log(`开始收集顶层资源文件, 基础目录: ${this.base}`)
     await this.collectTopLevelHierarchyFiles();
@@ -58,8 +57,8 @@ export class ResourceManager {
   }
 
   /**
-   * 收集顶层层级文件
-   */
+  * 收集顶层层级文件
+  */
   private async collectTopLevelHierarchyFiles(): Promise<void> {
     const files = await walkFile(this.base, {
       root: this.base,
@@ -72,10 +71,10 @@ export class ResourceManager {
   }
 
   /**
-   * 解析层级文件并递归处理依赖
-   * @param {string} filePath - 文件路径
-   * @returns
-   */
+  * 解析层级文件并递归处理依赖
+  * @param {string} filePath - 文件路径
+  * @returns
+  */
   private async parseHierarchyFile(
     filePath: string,
     depth: number = 0
@@ -177,10 +176,10 @@ export class ResourceManager {
   }
 
   /**
-   * 下载远程文件
-   * @param {string} filePath - 文件路径
-   * @returns {Promise<Buffer>} - 下载的文件内容
-   */
+  * 下载远程文件
+  * @param {string} filePath - 文件路径
+  * @returns {Promise<Buffer>} - 下载的文件内容
+  */
   private async downloadFile(filePath: string): Promise<Buffer> {
     try {
       const url = new URL(filePath, this.remote);
@@ -206,10 +205,10 @@ export class ResourceManager {
   }
 
   /**
-   * 检查本地文件是否存在
-   * @param filePath
-   * @returns
-   */
+  * 检查本地文件是否存在
+  * @param filePath
+  * @returns
+  */
   private async isLocalFileExists(filePath: string): Promise<boolean> {
     try {
       await stat(this.getLocalFilePath(filePath))
@@ -220,10 +219,10 @@ export class ResourceManager {
   }
 
   /**
-   * 获取本地文件路径
-   * @param filePath
-   * @returns
-   */
+  * 获取本地文件路径
+  * @param filePath
+  * @returns
+  */
   private getLocalFilePath(filePath: string): string {
     return join(
       this.base,

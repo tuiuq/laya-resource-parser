@@ -1,8 +1,8 @@
 import { Command } from "commander";
 import { join } from "node:path";
 import { version } from "../package.json";
-import type { Options } from "./types";
 import { ResourceManager } from "./laya/ResourceManager";
+import type { Options } from "./types";
 
 async function main() {
   const program = new Command();
