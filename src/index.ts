@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { join } from "node:path";
 import { version } from "../package.json";
+import { CONCURRENCY } from "./constants";
 import { ResourceManager } from "./laya/ResourceManager";
 import type { Options } from "./types";
 
@@ -39,7 +40,14 @@ async function main() {
       }
     )
     .action(async (options: Options) => {
-      const resource = new ResourceManager(options.base, options.remote)
+      const resource = new ResourceManager(
+        options.base,
+        options.remote,
+        {
+          concurrency: CONCURRENCY,
+        },
+        true
+      )
       await resource.parse()
     })
 
