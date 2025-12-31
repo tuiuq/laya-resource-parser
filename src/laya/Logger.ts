@@ -1,83 +1,131 @@
-import chalk, { type ChalkInstance } from "chalk";
-import type { ILogger } from "./interface";
+/**
+ * 向后兼容的Logger
+ * 
+ * 注意：这个类是为了保持向后兼容性而保留的
+ * 新的代码应该使用 src/logger/Logger.ts
+ */
 
+/**
+ * 日志级别枚举
+ */
 export enum LogLevel {
-  ERROR = 0,
-  WARN = 1,
-  INFO = 2,
-  DEBUG = 3,
+  ERROR = 'error',
+  WARN = 'warn',
+  INFO = 'info',
+  DEBUG = 'debug',
+  TRACE = 'trace',
+  SILENT = 'silent'
 }
 
+/**
+ * 日志器接口
+ */
+export interface ILogger {
+  info(message: string, ...args: unknown[]): void;
+  error(message: string, ...args: unknown[]): void;
+  debug(message: string, ...args: unknown[]): void;
+  warn(message: string, ...args: unknown[]): void;
+  createChildLogger(prefix: string): Logger;
+}
+
+/**
+ * @deprecated 使用新的 Logger (从 src/logger 导入)
+ */
 export class Logger implements ILogger {
   constructor(
-    private readonly prefix: string = "ResourceManager",
-    private readonly level: LogLevel = LogLevel.INFO,
-    private readonly enableColors: boolean = true,
-    private readonly output: NodeJS.WritableStream = process.stdout,
-    private readonly errorOutput: NodeJS.WritableStream = process.stderr
-  ) {}
-
-  private formatMessage(
-    level: string,
-    emoji: string,
-    message: string,
-    color: ChalkInstance
-  ): string {
-    const timestamp = this.getDate();
-    const levelTag = this.enableColors
-      ? chalk.bgHex(this.getColor(level)).bold(` ${level} `)
-      : `[${level}]`;
-
-    const prefix = this.enableColors
-      ? color(`[${this.prefix}]`)
-      : `[${this.prefix}]`
-
-    return `${timestamp} ${levelTag} ${prefix} ${emoji} ${message}`
+    private readonly name: string = 'Logger',
+    private readonly level: LogLevel = LogLevel.INFO
+  ) {
+    console.warn('警告: 使用已弃用的Logger，请迁移到新的Logger (从 src/logger 导入)');
   }
 
-  private getColor(level: string): string {
-    const colors = {
-      'Info': '#00ff00',
-      'Debug': '#0000ff',
-      'Error': '#ff0000',
-      'Warn': '#ffff00'
-    };
-    return colors[level as keyof typeof colors] || "#ffffff"
+  /**
+   * 记录信息日志
+   */
+  public info(message: string, ...args: unknown[]): void {
+    if (this.shouldLog(LogLevel.INFO)) {
+      console.log(`[INFO] [${this.name}] ${message}`, ...args);
+    }
   }
 
-  public info(message: string, ...args: unknown[]) {
-    if (this.level < LogLevel.INFO) return;
-
-    const formatted = this.formatMessage("Info", "ℹ️ ", message, chalk.green);
-    console.info(formatted, ...args);
+  /**
+   * 记录错误日志
+   */
+  public error(message: string, ...args: unknown[]): void {
+    if (this.shouldLog(LogLevel.ERROR)) {
+      console.error(`[ERROR] [${this.name}] ${message}`, ...args);
+    }
   }
 
-  public error(message: string, ...args: unknown[]) {
-    if (this.level < LogLevel.ERROR) return;
-
-    const formatted = this.formatMessage("Error", "❌", message, chalk.red);
-    console.error(formatted, ...args);
+  /**
+   * 记录调试日志
+   */
+  public debug(message: string, ...args: unknown[]): void {
+    if (this.shouldLog(LogLevel.DEBUG)) {
+      console.debug(`[DEBUG] [${this.name}] ${message}`, ...args);
+    }
   }
 
-  public debug(message: string, ...args: unknown[]) {
-    if (this.level < LogLevel.DEBUG) return;
-
-    const formatted = this.formatMessage("Debug", "🔍", message, chalk.blue);
-    console.debug(formatted, ...args);
-  }
-
+  /**
+   * 记录警告日志
+   */
   public warn(message: string, ...args: unknown[]): void {
-    if (this.level < LogLevel.WARN) return;
-
-    const formatted = this.formatMessage("Warn", "⚠️ ", message, chalk.yellow);
-    console.warn(formatted, ...args);
+    if (this.shouldLog(LogLevel.WARN)) {
+      console.warn(`[WARN] [${this.name}] ${message}`, ...args);
+    }
   }
 
-  private getDate(): string {
-    return chalk.cyan(`[${new Date().toLocaleTimeString("zh-CN")}]`);
-  }
-
+  /**
+   * 创建子日志器
+   */
   public createChildLogger(prefix: string): Logger {
-    return new Logger(`${this.prefix}:${prefix}`, this.level, this.enableColors, this.output, this.errorOutput);
+    return new Logger(`${this.name}:${prefix}`, this.level);
+  }
+
+  /**
+   * 检查是否应该记录该级别的日志
+   */
+  private shouldLog(level: LogLevel): boolean {
+    const levels: Record<LogLevel, number> = {
+      [LogLevel.ERROR]: 0,
+      [LogLevel.WARN]: 1,
+      [LogLevel.INFO]: 2,
+      [LogLevel.DEBUG]: 3,
+      [LogLevel.TRACE]: 4,
+      [LogLevel.SILENT]: 5
+    };
+
+    const currentLevel = levels[this.level];
+    const targetLevel = levels[level];
+
+    return targetLevel <= currentLevel;
+  }
+
+  /**
+   * 设置日志级别
+   */
+  public setLevel(level: LogLevel): void {
+    (this as any).level = level;
+  }
+
+  /**
+   * 获取日志级别
+   */
+  public getLevel(): LogLevel {
+    return this.level;
+  }
+
+  /**
+   * 获取日志器名称
+   */
+  public getName(): string {
+    return this.name;
+  }
+
+  /**
+   * 创建日志器实例
+   */
+  public static create(name: string, level: LogLevel = LogLevel.INFO): Logger {
+    return new Logger(name, level);
   }
 }

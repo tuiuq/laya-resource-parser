@@ -1,0 +1,217 @@
+# Laya资源解析器配置文件示例
+# 保存为 laya-config.yaml
+
+# 资源配置
+resource:
+  # 并发处理数
+  concurrency: 5
+  
+  # 顶层文件扩展名
+  topLevelHierarchyExtensions:
+    - .ls
+    - .lh
+  
+  # 可解析的文件扩展名
+  parsableHierarchyExtensions:
+    - .ls
+    - .lh
+    - .lmat
+    - .ltc
+  
+  # 忽略的文件扩展名
+  ignoredHierarchyExtensions:
+    - .ltcb.ls
+    - .lanit.ls
+  
+  # 文件路径模式正则表达式
+  filePathPattern: ^[\w./-\s-]*\.[A-Za-z0-9]{2,5}(\.[A-Za-z0-9]{2,5})?$/
+  
+  # 最大递归深度
+  maxDepth: 10
+  
+  # 超时时间（毫秒）
+  timeout: 30000
+  
+  # 是否启用缓存
+  enableCache: true
+  
+  # 缓存目录
+  cacheDir: .laya-cache
+  
+  # 重试次数
+  retryCount: 3
+  
+  # 重试延迟（毫秒）
+  retryDelay: 1000
+  
+  # 是否跳过已处理的文件
+  skipProcessedFiles: true
+  
+  # 是否验证文件完整性
+  validateFileIntegrity: false
+
+# 日志配置
+logger:
+  # 日志级别: error, warn, info, debug, trace, silent
+  level: info
+  
+  # 是否启用颜色
+  enableColors: true
+  
+  # 是否输出到文件
+  enableFileLogging: false
+  
+  # 日志文件路径
+  logFile: laya-parser.log
+  
+  # 日志格式
+  format: "[{timestamp}] [{level}] {message}"
+  
+  # 是否显示时间戳
+  showTimestamp: true
+  
+  # 是否显示日志级别
+  showLevel: true
+  
+  # 是否显示调用者信息
+  showCaller: false
+
+# 下载器配置
+downloader:
+  # 用户代理
+  userAgent: LayaResourceParser/1.0.0
+  
+  # 超时时间（毫秒）
+  timeout: 15000
+  
+  # 最大重试次数
+  maxRetries: 3
+  
+  # 重试延迟（毫秒）
+  retryDelay: 1000
+  
+  # 是否启用压缩
+  enableCompression: true
+  
+  # 自定义请求头
+  headers:
+    Accept: "*/*"
+    Accept-Encoding: "gzip, deflate, br"
+    Cache-Control: "no-cache"
+
+# 处理器配置（自定义处理器）
+processors:
+  # 示例：自定义JSON处理器
+  - name: custom-json
+    supportedExtensions:
+      - .json
+      - .ls
+      - .lh
+    processorClass: ./custom-processors/JsonProcessor.js
+    options:
+      strictMode: true
+      allowComments: false
+  
+  # 示例：自定义二进制处理器
+  - name: custom-binary
+    supportedExtensions:
+      - .bin
+      - .dat
+    processorClass: ./custom-processors/BinaryProcessor.js
+    options:
+      chunkSize: 8192
+
+# 解析器配置
+resolvers:
+  # 路径解析器
+  - type: path
+    resolverClass: ./custom-resolvers/PathResolver.js
+    options:
+      normalizeSeparators: true
+  
+  # URL解析器
+  - type: url
+    resolverClass: ./custom-resolvers/UrlResolver.js
+    options:
+      validateProtocols: true
+
+# 插件配置
+plugins:
+  # 示例：统计插件
+  - name: stats-plugin
+    plugin: ./plugins/stats-plugin.js
+    enabled: true
+    options:
+      collectMetrics: true
+      outputFormat: json
+  
+  # 示例：验证插件
+  - name: validation-plugin
+    plugin: ./plugins/validation-plugin.js
+    enabled: true
+    options:
+      validatePaths: true
+      checkCircularReferences: true
+
+# 自定义扩展
+extensions:
+  # 自定义文件过滤器
+  fileFilters:
+    - pattern: "**/*.ls"
+      action: include
+    - pattern: "**/*.lh"
+      action: include
+    - pattern: "**/node_modules/**"
+      action: exclude
+  
+  # 自定义输出格式
+  outputFormats:
+    json:
+      indent: 2
+      sortKeys: true
+    csv:
+      delimiter: ","
+      includeHeader: true
+  
+  # 自定义钩子
+  hooks:
+    beforeParse:
+      - ./hooks/validate-config.js
+      - ./hooks/setup-logging.js
+    afterParse:
+      - ./hooks/generate-report.js
+      - ./hooks/cleanup-temp.js
+
+# 环境特定配置（通过 NODE_ENV 环境变量选择）
+environments:
+  development:
+    logger:
+      level: debug
+      enableFileLogging: true
+    resource:
+      concurrency: 3
+      enableCache: false
+  
+  production:
+    logger:
+      level: warn
+      enableFileLogging: true
+    resource:
+      concurrency: 10
+      enableCache: true
+      retryCount: 5
+  
+  test:
+    logger:
+      level: silent
+      enableColors: false
+    resource:
+      concurrency: 1
+      enableCache: false
+      skipProcessedFiles: false
+
+# 注释：
+# 1. 配置文件支持 YAML 和 JSON 格式
+# 2. 可以通过命令行参数覆盖配置：--config ./path/to/config.yaml
+# 3. 环境变量前缀：LAYA_（例如：LAYA_RESOURCE_CONCURRENCY=10）
+# 4. 配置加载顺序：默认配置 < 配置文件 < 环境变量 < 命令行参数

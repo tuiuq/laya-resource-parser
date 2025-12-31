@@ -1,75 +1,60 @@
-import { walkFile } from "@/utils/walkFile";
-import { error, log } from "node:console";
-import { stat, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
-import pLimit from "p-limit";
-import { ConfigManager } from "./ConfigManager";
-import { DownloadManager } from "./DownloadManager";
-import { FileProcessor } from "./FileProcessor";
-import type { IConfig } from "./interface";
-import { Logger, LogLevel } from "./Logger";
-import { PathResolver } from "./PathResolver";
+/**
+ * 向后兼容的ResourceManager
+ * 
+ * 注意：这个类是为了保持向后兼容性而保留的
+ * 新的代码应该使用 src/core/ResourceManager.ts
+ */
 
+import { createResourceManager as createNewResourceManager } from '../core';
+import type { ResourceManagerOptions } from '../types/core';
+import type { IConfig, ILogger } from './interface';
+
+/**
+ * @deprecated 使用新的 ResourceManager (从 src/core 导入)
+ */
 export class ResourceManager {
-  private readonly config: IConfig;
-  private readonly logger: Logger;
-  private readonly pathResolver: PathResolver;
-  private readonly downloadManager: DownloadManager;
-  private readonly fileProcessor: FileProcessor;
-  private readonly topLevelHierarchyFiles: Set<string> = new Set();
+  private readonly newResourceManager: any;
 
   constructor(
-    private readonly base: string,
-    remote: string,
-    config?: Partial<IConfig>,
-    debugEnabled: boolean = false
+    base: string,
+    config: IConfig,
+    logger: ILogger,
+    _fileProcessor?: any
   ) {
-    this.config = new ConfigManager(config);
-    this.logger = new Logger("ResourceManager", debugEnabled ? LogLevel.DEBUG : LogLevel.INFO);
-    this.pathResolver = new PathResolver(this.base, new URL(remote));
-    this.downloadManager = new DownloadManager(this.pathResolver, this.logger);
-    this.fileProcessor = new FileProcessor(this.config, this.downloadManager, this.logger);
+    // 将旧配置转换为新配置
+    const options: ResourceManagerOptions = {
+      base,
+      remote: '', // 需要从其他地方获取
+      concurrency: config.concurrency,
+      debug: (logger as any).getLevel?.() === 'debug',
+      config: {
+        concurrency: config.concurrency,
+        topLevelHierarchyExtensions: config.topLevelHierarchyExtensions,
+        parsableHierarchyExtensions: config.parsableHierarchyExtensions,
+        ignoredHierarchyExtensions: config.ignoredHierarchyExtensions,
+        filePathPattern: config.filePathPattern
+      }
+    };
+
+    this.newResourceManager = createNewResourceManager(options);
   }
 
   /**
    * 解析所有资源文件
    */
   public async parse(): Promise<void> {
-    this.logger.info(`开始收集顶层资源文件, 基础目录: ${this.base}`);
-    await this.collectTopLevelHierarchyFiles();
-    this.logger.info(`收集顶层资源文件完成, 共 ${this.topLevelHierarchyFiles.size} 个文件`);
-
-    const limit = pLimit(this.config.concurrency);
-    const tasks = Array.from(this.topLevelHierarchyFiles)
-      .map(filePath => limit(async () => {
-        try {
-          await this.fileProcessor.parseHierarchyFile(filePath, 0);
-          this.logger.info(`✓ 解析成功: ${filePath}`);
-        } catch (err) {
-          this.logger.error(`✗ 解析失败: ${filePath}`, err);
-          throw err;
-        }
-      }));
-
-    await Promise.all(tasks);
-
-    const fileList = this.fileProcessor.getFileList();
-    this.logger.info(`\n解析完成, 共处理 ${fileList.length} 个文件`);
-    this.logger.info("文件列表: ");
-    fileList.sort().forEach(file => this.logger.info(`  - ${file}`));
-  }
-
-  /**
-   * 收集顶层层级文件
-   */
-  private async collectTopLevelHierarchyFiles(): Promise<void> {
-    const files = await walkFile(this.base, {
-      root: this.base,
-      filter: (path) => this.fileProcessor.isTopLevelHierarchy(path)
-    });
-
-    for (const file of files) {
-      this.topLevelHierarchyFiles.add(file);
+    console.warn('警告: 使用已弃用的ResourceManager，请迁移到新的ResourceManager (从 src/core 导入)');
+    
+    try {
+      const result = await this.newResourceManager.parse();
+      
+      // 模拟旧的日志输出
+      console.log(`\n解析完成, 共处理 ${result.fileList.length} 个文件`);
+      console.log("文件列表: ");
+      result.fileList.sort().forEach((file: string) => console.log(`  - ${file}`));
+    } catch (error) {
+      console.error("解析失败:", error);
+      throw error;
     }
   }
 
@@ -77,22 +62,116 @@ export class ResourceManager {
    * 获取已处理的文件列表
    */
   public getProcessedFiles(): string[] {
-    return this.fileProcessor.getProcessedFiles();
+    console.warn('警告: 使用已弃用的getProcessedFiles方法');
+    return this.newResourceManager.getFileList();
   }
-
 
   /**
    * 获取所有文件列表
    */
   public getFileList(): string[] {
-    return this.fileProcessor.getFileList();
+    console.warn('警告: 使用已弃用的getFileList方法');
+    return this.newResourceManager.getFileList();
   }
 
   /**
    * 获取顶层文件列表
    */
   public getTopLevelFiles(): string[] {
-    return Array.from(this.topLevelHierarchyFiles);
+    console.warn('警告: 使用已弃用的getTopLevelFiles方法');
+    return this.newResourceManager.getTopLevelFiles();
   }
 
+  /**
+   * 设置远程URL（向后兼容性方法）
+   */
+  public setRemoteUrl(_remoteUrl: string): void {
+    console.warn('警告: 使用已弃用的setRemoteUrl方法');
+    // 这个方法在新的ResourceManager中不可用
+  }
+
+  /**
+   * 设置基础路径（向后兼容性方法）
+   */
+  public setBasePath(_basePath: string): void {
+    console.warn('警告: 使用已弃用的setBasePath方法');
+    // 这个方法在新的ResourceManager中不可用
+  }
+
+  /**
+   * 设置配置（向后兼容性方法）
+   */
+  public setConfig(_config: Partial<IConfig>): void {
+    console.warn('警告: 使用已弃用的setConfig方法');
+    // 这个方法在新的ResourceManager中不可用
+  }
+
+  /**
+   * 设置日志器（向后兼容性方法）
+   */
+  public setLogger(_logger: ILogger): void {
+    console.warn('警告: 使用已弃用的setLogger方法');
+    // 这个方法在新的ResourceManager中不可用
+  }
+
+  /**
+   * 设置文件处理器（向后兼容性方法）
+   */
+  public setFileProcessor(_fileProcessor: any): void {
+    console.warn('警告: 使用已弃用的setFileProcessor方法');
+    // 这个方法在新的ResourceManager中不可用
+  }
+}
+
+/**
+ * 创建ResourceManager的工厂函数（向后兼容）
+ * 
+ * @deprecated 使用 createResourceManager (从 src/core 导入)
+ */
+export function createLegacyResourceManager(
+  base: string,
+  remote: string,
+  config?: Partial<IConfig>,
+  debugEnabled: boolean = false
+): ResourceManager {
+  console.warn('警告: 使用已弃用的createLegacyResourceManager函数，请使用 createResourceManager (从 src/core 导入)');
+  
+  // 创建新的ResourceManager
+  const options: ResourceManagerOptions = {
+    base,
+    remote,
+    concurrency: config?.concurrency ?? 5,
+    debug: debugEnabled,
+    config: config ? {
+      concurrency: config.concurrency,
+      topLevelHierarchyExtensions: config.topLevelHierarchyExtensions,
+      parsableHierarchyExtensions: config.parsableHierarchyExtensions,
+      ignoredHierarchyExtensions: config.ignoredHierarchyExtensions,
+      filePathPattern: config.filePathPattern
+    } : undefined
+  };
+
+  const newResourceManager = createNewResourceManager(options);
+  
+  // 返回适配器
+  return new (class extends ResourceManager {
+    constructor() {
+      super(base, config as IConfig, {
+        info: (msg: string) => console.log(msg),
+        error: (msg: string, err?: any) => console.error(msg, err),
+        debug: (msg: string) => debugEnabled && console.debug(msg),
+        warn: (msg: string) => console.warn(msg),
+        createChildLogger: (prefix: string) => ({
+          info: (msg: string) => console.log(`[${prefix}] ${msg}`),
+          error: (msg: string, err?: any) => console.error(`[${prefix}] ${msg}`, err),
+          debug: (msg: string) => debugEnabled && console.debug(`[${prefix}] ${msg}`),
+          warn: (msg: string) => console.warn(`[${prefix}] ${msg}`),
+          createChildLogger: () => this as any
+        })
+      } as any);
+      
+      // 替换内部的newResourceManager
+      (this as any).newResourceManager = newResourceManager;
+    }
+  })();
 }

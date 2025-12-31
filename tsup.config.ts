@@ -12,6 +12,8 @@ export default defineConfig({
   bundle: true,
   external: [
     "commander",
+    "yaml",
+    "strip-json-comments",
     ...builtinModules.flatMap(m => [m, `node:${m}`])
   ],
   async esbuildOptions(options) {
